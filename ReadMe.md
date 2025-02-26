@@ -5,6 +5,7 @@ A simple command-line utility in Go that replicates the basic functionality of `
 ## 🚀 Features
 - Count the size (in bytes) of a given file using the `-c` flag.
 - Count the number of lines in a file using the `-l` flag.
+- Count the number of words in a file using the `-w` flag.
 - Handles errors gracefully for missing files and invalid arguments.
 - Includes comprehensive unit tests.
 
@@ -28,6 +29,7 @@ $ go build -o gowc
 ```sh
 $ ./gowc -c test.txt   # Get file size in bytes
 $ ./gowc -l test.txt   # Get the number of lines
+$ ./gowc -w test.txt   # Get the number of words
 ```
 
 ### Example Output:
@@ -37,6 +39,9 @@ $ ./gowc -c test.txt
 
 $ ./gowc -l test.txt
 7145 test.txt
+
+$ ./gowc -w test.txt
+58164 test.txt
 ```
 
 ## 🧪 Running Tests
