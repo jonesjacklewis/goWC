@@ -21,7 +21,7 @@ func get_size_in_bytes_by_filename(filename string) (int64, error) {
 	file, err := os.Open(filename)
 
 	if err != nil {
-		return 0, fmt.Errorf("Error opening file: %s", filename)
+		return -1, fmt.Errorf("Error opening file: %s", filename)
 	}
 
 	defer file.Close()
@@ -29,7 +29,7 @@ func get_size_in_bytes_by_filename(filename string) (int64, error) {
 	fi, err := file.Stat()
 
 	if err != nil {
-		return 0, fmt.Errorf("Error getting file info: %s", filename)
+		return -1, fmt.Errorf("Error getting file info: %s", filename)
 	}
 
 	return fi.Size(), nil
@@ -78,6 +78,54 @@ func get_number_of_lines_by_filename(filename string) (int, error) {
 	return number_of_lines, nil
 }
 
+func get_number_of_words_by_filename(filename string) (int, error) {
+
+	file, err := os.Open(filename)
+
+	if err != nil {
+		return -1, fmt.Errorf("Error opening file: %s", filename)
+	}
+
+	defer file.Close()
+
+	number_of_words := 0
+
+	buf := make([]byte, 1024)
+	in_word := false
+
+	for {
+		n, err := file.Read(buf)
+
+		if n == 0 {
+			break
+		}
+
+		for i := 0; i < n; i++ {
+			at_position := buf[i]
+
+			if unicode.IsSpace(rune(at_position)) {
+				if in_word {
+					number_of_words++
+					in_word = false
+				}
+			} else {
+				in_word = true
+			}
+		}
+
+		if err != nil {
+			break
+		}
+
+	}
+
+	if in_word {
+		number_of_words++
+	}
+
+	return number_of_words, nil
+}
+
 func handle_dash_c(os_args []string) (string, error) {
 
 	if len(os_args) != 3 {
@@ -118,47 +166,10 @@ func handle_dash_w(os_args []string) (string, error) {
 
 	filename := os_args[2]
 
-	file, err := os.Open(filename)
+	number_of_words, err := get_number_of_words_by_filename(filename)
 
 	if err != nil {
-		return "", fmt.Errorf("Error opening file: %s", filename)
-	}
-
-	defer file.Close()
-
-	number_of_words := 0
-
-	buf := make([]byte, 1024)
-	in_word := false
-
-	for {
-		n, err := file.Read(buf)
-
-		if n == 0 {
-			break
-		}
-
-		for i := 0; i < n; i++ {
-			at_position := buf[i]
-
-			if unicode.IsSpace(rune(at_position)) {
-				if in_word {
-					number_of_words++
-					in_word = false
-				}
-			} else {
-				in_word = true
-			}
-		}
-
-		if err != nil {
-			break
-		}
-
-	}
-
-	if in_word {
-		number_of_words++
+		return "", err
 	}
 
 	return fmt.Sprintf("%d %s", number_of_words, filename), nil
