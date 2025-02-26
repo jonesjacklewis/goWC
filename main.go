@@ -156,7 +156,7 @@ func handle_dash_c(os_args []string) (string, error) {
 
 func handle_dash_l(os_args []string) (string, error) {
 	if len(os_args) != 3 {
-		return "", fmt.Errorf("Invalid number of arguments")
+		return "", fmt.Errorf("Invalid number of arguments a")
 	}
 
 	filename := os_args[2]
@@ -238,14 +238,34 @@ func handle_default(filename string) (string, error) {
 	return tabbed_parts, nil
 }
 
+func write_stdin_to_file(filename string) error {
+	data, err := os.ReadFile(os.Stdin.Name())
+
+	if err != nil {
+		return fmt.Errorf("Error reading from stdin")
+	}
+
+	err = os.WriteFile(filename, data, 0644)
+
+	if err != nil {
+		return fmt.Errorf("Error writing to file: %s", filename)
+	}
+
+	return nil
+}
+
 // func main() that takes command line arguments
 func main() {
 	number_of_args := len(os.Args)
+	written_temp_file := false
 
 	if number_of_args <= 1 {
-		fmt.Println("No arguments provided")
-		return
+		write_stdin_to_file("temp.txt")
+		os.Args = append(os.Args, "temp.txt")
+		written_temp_file = true
 	}
+
+	number_of_args = len(os.Args)
 
 	first_arg := os.Args[1]
 
@@ -255,10 +275,19 @@ func main() {
 
 		if err != nil {
 			fmt.Println(err)
+
+			if written_temp_file {
+				os.Remove("temp.txt")
+			}
+
 			return
 		}
 
 		fmt.Println(message)
+
+		if written_temp_file {
+			os.Remove("temp.txt")
+		}
 
 		return
 	}
@@ -266,6 +295,12 @@ func main() {
 	if !is_valid_switch(first_arg) {
 		fmt.Printf("Invalid Switch: %s\n", first_arg)
 		return
+	}
+
+	if number_of_args == 2 {
+		write_stdin_to_file("temp.txt")
+		os.Args = append(os.Args, "temp.txt")
+		written_temp_file = true
 	}
 
 	switch first_arg {
@@ -279,6 +314,10 @@ func main() {
 
 		fmt.Println(message)
 
+		if written_temp_file {
+			os.Remove("temp.txt")
+		}
+
 		return
 	case "-l":
 		message, err := handle_dash_l(os.Args)
@@ -289,6 +328,10 @@ func main() {
 		}
 
 		fmt.Println(message)
+
+		if written_temp_file {
+			os.Remove("temp.txt")
+		}
 
 		return
 	case "-w":
@@ -301,6 +344,10 @@ func main() {
 
 		fmt.Println(message)
 
+		if written_temp_file {
+			os.Remove("temp.txt")
+		}
+
 		return
 	case "-m":
 		message, err := handle_dash_m(os.Args)
@@ -311,6 +358,12 @@ func main() {
 		}
 
 		fmt.Println(message)
+
+		if written_temp_file {
+			os.Remove("temp.txt")
+		}
+
+		return
 	}
 
 }
