@@ -35,34 +35,11 @@ func get_size_in_bytes_by_filename(filename string) (int64, error) {
 	return fi.Size(), nil
 }
 
-func handle_dash_c(os_args []string) (string, error) {
-
-	if len(os_args) != 3 {
-		return "", fmt.Errorf("Invalid number of arguments")
-	}
-
-	filename := os_args[2]
-
-	file_size, err := get_size_in_bytes_by_filename(filename)
-
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf("%d %s", file_size, filename), nil
-}
-
-func handle_dash_l(os_args []string) (string, error) {
-	if len(os_args) != 3 {
-		return "", fmt.Errorf("Invalid number of arguments")
-	}
-
-	filename := os_args[2]
-
+func get_number_of_lines_by_filename(filename string) (int, error) {
 	file, err := os.Open(filename)
 
 	if err != nil {
-		return "", fmt.Errorf("Error opening file: %s", filename)
+		return -1, fmt.Errorf("Error opening file: %s", filename)
 	}
 
 	defer file.Close()
@@ -96,6 +73,39 @@ func handle_dash_l(os_args []string) (string, error) {
 
 	if number_of_lines == 0 && has_content {
 		number_of_lines = 1
+	}
+
+	return number_of_lines, nil
+}
+
+func handle_dash_c(os_args []string) (string, error) {
+
+	if len(os_args) != 3 {
+		return "", fmt.Errorf("Invalid number of arguments")
+	}
+
+	filename := os_args[2]
+
+	file_size, err := get_size_in_bytes_by_filename(filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%d %s", file_size, filename), nil
+}
+
+func handle_dash_l(os_args []string) (string, error) {
+	if len(os_args) != 3 {
+		return "", fmt.Errorf("Invalid number of arguments")
+	}
+
+	filename := os_args[2]
+
+	number_of_lines, err := get_number_of_lines_by_filename(filename)
+
+	if err != nil {
+		return "", err
 	}
 
 	return fmt.Sprintf("%d %s", number_of_lines, filename), nil
