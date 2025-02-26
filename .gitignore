@@ -1,0 +1,44 @@
+# Binaries and executables
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.out
+*.o
+
+# Go build artifacts
+/build/
+/bin/
+/dist/
+*.test
+
+# Dependency directories (if you are using vendoring)
+vendor/
+
+# Logs and debugging
+*.log
+*.trace
+*.prof
+*.tmp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.tmp
+*.DS_Store
+
+# Go module files (DO NOT ignore go.sum)
+# /go.sum  <-- Don't ignore this!
+
+# Go workspaces (if applicable)
+go.work
+go.work.sum
+
+# Generated files
+gen/
+*.txt
+gowc
