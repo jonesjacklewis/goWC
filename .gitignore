@@ -42,3 +42,4 @@ go.work.sum
 gen/
 *.txt
 gowc
+!test.txt
