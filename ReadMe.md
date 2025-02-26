@@ -54,12 +54,6 @@ $ go test ./...
  ├── go.mod          # Go module file
 ```
 
-## 📜 License
-This project is licensed under the MIT License.
-
-## 🙌 Contributing
-Feel free to submit issues and pull requests for improvements!
-
 ---
 Made with ❤️ using Go.
 
