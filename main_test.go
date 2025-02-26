@@ -28,19 +28,92 @@ func Test_is_valid_switch(t *testing.T) {
 	})
 }
 
-func Test_handle_dash_c(t *testing.T) {
-	t.Run("Invalid number of arguments", func(t *testing.T) {
-		os_args := []string{"gowc", "-c"}
-		_, err := handle_dash_c(os_args)
+func Test_get_size_in_bytes_by_filename(t *testing.T) {
+	t.Run("File does not exist", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+		_, err := get_size_in_bytes_by_filename(fmt.Sprintf("%s.txt", random_file_name))
 
 		if err == nil {
 			t.Errorf("Expected error got nil")
 		}
 	})
 
-	t.Run("File does not exist", func(t *testing.T) {
+	t.Run("File is empty", func(t *testing.T) {
 		random_file_name := uuid.New().String()
-		os_args := []string{"gowc", "-c", fmt.Sprintf("%s.txt", random_file_name)}
+
+		filename := fmt.Sprintf("%s.txt", random_file_name)
+
+		// Create a file with the random_file_name
+		file, err := os.Create(filename)
+
+		if err != nil {
+			t.Errorf("Error creating file: %s", filename)
+		}
+
+		file.Close()
+
+		size, err := get_size_in_bytes_by_filename(filename)
+
+		if err != nil {
+			t.Errorf("Expected no error, got %s", err)
+		}
+
+		if size != 0 {
+			t.Errorf("Expected 0 got %d", size)
+		}
+
+		// Remove the file
+		err = os.Remove(filename)
+
+		if err != nil {
+			t.Errorf("Error removing file: %s", filename)
+		}
+	})
+
+	t.Run("File is not empty", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+
+		filename := fmt.Sprintf("%s.txt", random_file_name)
+
+		// Create a file with the random_file_name
+		file, err := os.Create(filename)
+
+		if err != nil {
+			t.Errorf("Error creating file: %s", filename)
+		}
+
+		content_to_write := "Hello, World!"
+
+		_, err = file.WriteString(content_to_write)
+
+		if err != nil {
+			t.Errorf("Error writing to file: %s", filename)
+		}
+
+		file.Close()
+
+		size, err := get_size_in_bytes_by_filename(filename)
+
+		if err != nil {
+			t.Errorf("Expected no error, got %s", err)
+		}
+
+		if size != int64(len(content_to_write)) {
+			t.Errorf("Expected %d got %d", len(content_to_write), size)
+		}
+
+		// Remove the file
+		err = os.Remove(filename)
+
+		if err != nil {
+			t.Errorf("Error removing file: %s", filename)
+		}
+	})
+}
+
+func Test_handle_dash_c(t *testing.T) {
+	t.Run("Invalid number of arguments", func(t *testing.T) {
+		os_args := []string{"gowc", "-c"}
 		_, err := handle_dash_c(os_args)
 
 		if err == nil {

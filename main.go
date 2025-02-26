@@ -17,6 +17,24 @@ func is_valid_switch(switch_chosen string) bool {
 	return valid_switch_map[switch_chosen]
 }
 
+func get_size_in_bytes_by_filename(filename string) (int64, error) {
+	file, err := os.Open(filename)
+
+	if err != nil {
+		return 0, fmt.Errorf("Error opening file: %s", filename)
+	}
+
+	defer file.Close()
+
+	fi, err := file.Stat()
+
+	if err != nil {
+		return 0, fmt.Errorf("Error getting file info: %s", filename)
+	}
+
+	return fi.Size(), nil
+}
+
 func handle_dash_c(os_args []string) (string, error) {
 
 	if len(os_args) != 3 {
@@ -25,21 +43,11 @@ func handle_dash_c(os_args []string) (string, error) {
 
 	filename := os_args[2]
 
-	file, err := os.Open(filename)
+	file_size, err := get_size_in_bytes_by_filename(filename)
 
 	if err != nil {
-		return "", fmt.Errorf("Error opening file: %s", filename)
+		return "", err
 	}
-
-	defer file.Close()
-
-	fi, err := file.Stat()
-
-	if err != nil {
-		return "", fmt.Errorf("Error getting file info: %s", filename)
-	}
-
-	file_size := fi.Size()
 
 	return fmt.Sprintf("%d %s", file_size, filename), nil
 }
