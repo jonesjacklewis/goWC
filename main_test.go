@@ -318,6 +318,129 @@ func Test_get_number_of_words_by_filename(t *testing.T) {
 
 }
 
+func Test_get_number_of_characters_by_filename(t *testing.T) {
+	t.Run("File does not exist", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+		_, err := get_number_of_characters_by_filename(fmt.Sprintf("%s.txt", random_file_name))
+
+		if err == nil {
+			t.Errorf("Expected error got nil")
+		}
+	})
+
+	t.Run("File is empty", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+
+		filename := fmt.Sprintf("%s.txt", random_file_name)
+
+		// Create a file with the random_file_name
+		file, err := os.Create(filename)
+
+		if err != nil {
+			t.Errorf("Error creating file: %s", filename)
+		}
+
+		file.Close()
+
+		number_of_characters, err := get_number_of_characters_by_filename(filename)
+
+		if err != nil {
+			t.Errorf("Expected no error, got %s", err)
+		}
+
+		if number_of_characters != 0 {
+			t.Errorf("Expected 0 got %d", number_of_characters)
+		}
+
+		// Remove the file
+		err = os.Remove(filename)
+
+		if err != nil {
+			t.Errorf("Error removing file: %s", filename)
+		}
+	})
+
+	t.Run("File is not empty", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+
+		filename := fmt.Sprintf("%s.txt", random_file_name)
+
+		// Create a file with the random_file_name
+		file, err := os.Create(filename)
+
+		if err != nil {
+			t.Errorf("Error creating file: %s", filename)
+		}
+
+		content_to_write := "Hello World"
+
+		_, err = file.WriteString(content_to_write)
+
+		if err != nil {
+			t.Errorf("Error writing to file: %s", filename)
+		}
+
+		file.Close()
+
+		number_of_characters, err := get_number_of_characters_by_filename(filename)
+
+		if err != nil {
+			t.Errorf("Expected no error, got %s", err)
+		}
+
+		if number_of_characters != 11 {
+			t.Errorf("Expected 11 got %d", number_of_characters)
+		}
+
+		// Remove the file
+		err = os.Remove(filename)
+
+		if err != nil {
+			t.Errorf("Error removing file: %s", filename)
+		}
+	})
+
+	t.Run("Multibyte Characters", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+
+		filename := fmt.Sprintf("%s.txt", random_file_name)
+
+		// Create a file with the random_file_name
+		file, err := os.Create(filename)
+
+		if err != nil {
+			t.Errorf("Error creating file: %s", filename)
+		}
+
+		content_to_write := "Hello, 世界"
+
+		_, err = file.WriteString(content_to_write)
+
+		if err != nil {
+			t.Errorf("Error writing to file: %s", filename)
+		}
+
+		file.Close()
+
+		number_of_characters, err := get_number_of_characters_by_filename(filename)
+
+		if err != nil {
+			t.Errorf("Expected no error, got %s", err)
+		}
+
+		if number_of_characters != 13 {
+			t.Errorf("Expected 13 got %d", number_of_characters)
+		}
+
+		// Remove the file
+		err = os.Remove(filename)
+
+		if err != nil {
+			t.Errorf("Error removing file: %s", filename)
+		}
+	})
+}
+
 func Test_handle_dash_c(t *testing.T) {
 	t.Run("Invalid number of arguments", func(t *testing.T) {
 		os_args := []string{"gowc", "-c"}
@@ -625,16 +748,6 @@ func Test_handle_dash_w(t *testing.T) {
 func Test_handle_dash_m(t *testing.T) {
 	t.Run("Invalid number of arguments", func(t *testing.T) {
 		os_args := []string{"gowc", "-m"}
-		_, err := handle_dash_m(os_args)
-
-		if err == nil {
-			t.Errorf("Expected error got nil")
-		}
-	})
-
-	t.Run("File does not exist", func(t *testing.T) {
-		random_file_name := uuid.New().String()
-		os_args := []string{"gowc", "-w", fmt.Sprintf("%s.txt", random_file_name)}
 		_, err := handle_dash_m(os_args)
 
 		if err == nil {

@@ -126,6 +126,16 @@ func get_number_of_words_by_filename(filename string) (int, error) {
 	return number_of_words, nil
 }
 
+func get_number_of_characters_by_filename(filename string) (int, error) {
+	data, err := os.ReadFile(filename)
+
+	if err != nil {
+		return -1, fmt.Errorf("Error reading file: %s", filename)
+	}
+
+	return len(data), nil
+}
+
 func handle_dash_c(os_args []string) (string, error) {
 
 	if len(os_args) != 3 {
@@ -182,13 +192,11 @@ func handle_dash_m(os_args []string) (string, error) {
 
 	filename := os_args[2]
 
-	data, err := os.ReadFile(filename)
+	number_of_characters, err := get_number_of_characters_by_filename(filename)
 
 	if err != nil {
-		return "", fmt.Errorf("Error reading file: %s", filename)
+		return "", err
 	}
-
-	number_of_characters := len(data)
 
 	return fmt.Sprintf("%d %s", number_of_characters, filename), nil
 }
