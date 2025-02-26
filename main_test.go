@@ -873,3 +873,86 @@ func Test_handle_dash_m(t *testing.T) {
 	})
 
 }
+
+func Test_handle_default(t *testing.T) {
+	t.Run("File does not exist", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+		_, err := handle_default(fmt.Sprintf("%s.txt", random_file_name))
+
+		if err == nil {
+			t.Errorf("Expected error got nil")
+		}
+	})
+
+	t.Run("File is empty", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+		filename := fmt.Sprintf("%s.txt", random_file_name)
+
+		// Create a file with the random_file_name
+		file, err := os.Create(filename)
+
+		if err != nil {
+			t.Errorf("Error creating file: %s", filename)
+		}
+
+		file.Close()
+
+		message, err := handle_default(filename)
+
+		if err != nil {
+			t.Errorf("Expected no error, got %s", err)
+		}
+
+		expected_message := fmt.Sprintf("0\t0\t0\t%s", filename)
+
+		if message != expected_message {
+			t.Errorf("Expected %s got %s", expected_message, message)
+		}
+
+		// Remove the file
+		err = os.Remove(filename)
+
+		if err != nil {
+			t.Errorf("Error removing file: %s", filename)
+		}
+	})
+
+	t.Run("File is not empty", func(t *testing.T) {
+		random_file_name := uuid.New().String()
+		filename := fmt.Sprintf("%s.txt", random_file_name)
+
+		// Create a file with the random_file_name
+		file, err := os.Create(filename)
+
+		if err != nil {
+			t.Errorf("Error creating file: %s", filename)
+		}
+
+		_, err = file.WriteString("Hello, World!\nHello, World!\nHello, World!\n")
+
+		if err != nil {
+			t.Errorf("Error writing to file: %s", filename)
+		}
+
+		file.Close()
+
+		message, err := handle_default(filename)
+
+		if err != nil {
+			t.Errorf("Expected no error, got %s", err)
+		}
+
+		expected_message := fmt.Sprintf("3\t6\t42\t%s", filename)
+
+		if message != expected_message {
+			t.Errorf("Expected %s got %s", expected_message, message)
+		}
+
+		// Remove the file
+		err = os.Remove(filename)
+
+		if err != nil {
+			t.Errorf("Error removing file: %s", filename)
+		}
+	})
+}

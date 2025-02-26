@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 	"unicode"
 )
 
@@ -57,7 +58,7 @@ func get_number_of_lines_by_filename(filename string) (int, error) {
 		}
 
 		for i := 0; i < n; i++ {
-			if buf[i] == '\n' || buf[i] == '\r' {
+			if buf[i] == '\n' {
 				number_of_lines++
 			} else {
 				if number_of_lines == 0 {
@@ -201,6 +202,42 @@ func handle_dash_m(os_args []string) (string, error) {
 	return fmt.Sprintf("%d %s", number_of_characters, filename), nil
 }
 
+func handle_default(filename string) (string, error) {
+
+	number_of_lines, err := get_number_of_lines_by_filename(filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	number_of_words, err := get_number_of_words_by_filename(filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	size_in_bytes, err := get_size_in_bytes_by_filename(filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	parts := []string{
+		fmt.Sprintf("%d", number_of_lines),
+		fmt.Sprintf("%d", number_of_words),
+		fmt.Sprintf("%d", size_in_bytes),
+		filename,
+	}
+
+	tabbed_parts := strings.Join(parts, "\t")
+
+	return tabbed_parts, nil
+}
+
 // func main() that takes command line arguments
 func main() {
 	number_of_args := len(os.Args)
@@ -210,14 +247,28 @@ func main() {
 		return
 	}
 
-	switch_chosen := os.Args[1]
+	first_arg := os.Args[1]
 
-	if !is_valid_switch(switch_chosen) {
-		fmt.Printf("Invalid Switch: %s\n", switch_chosen)
+	// if switch_chosen starts with a dash
+	if first_arg[0] != '-' {
+		message, err := handle_default(first_arg)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Println(message)
+
 		return
 	}
 
-	switch switch_chosen {
+	if !is_valid_switch(first_arg) {
+		fmt.Printf("Invalid Switch: %s\n", first_arg)
+		return
+	}
+
+	switch first_arg {
 	case "-c":
 		message, err := handle_dash_c(os.Args)
 
